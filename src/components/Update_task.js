@@ -1,10 +1,10 @@
-import React,{useEffect} from "react";
+import React, { useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
-import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
+import AssignmentIndIcon from "@material-ui/icons/AssignmentInd";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import Link from "@material-ui/core/Link";
@@ -36,8 +36,8 @@ const useStyles = makeStyles((theme) => ({
   avatar: {
     margin: theme.spacing(5),
     backgroundColor: theme.palette.secondary.main,
-		height: 60,
-		width: '15%'
+    height: 60,
+    width: "15%",
   },
   form: {
     width: "100%", // Fix IE 11 issue.
@@ -52,39 +52,47 @@ function Update_task() {
   const classes = useStyles();
 
   const [data, setData] = useState(null);
-  const [form, setForm] = useState({name:'',pr:''});
+  const [form, setForm] = useState([{ name: "", pr: "", hours: 0.5 }]);
 
-
-  useEffect(() => {
+  const saveForm = async () => {
+    console.log("Save form called...");
     axios({
-      method: 'POST',
-      url: 'http://localhost:3000/tasks',
-			headers: {"Access-Control-Allow-Origin": "*"}
+      method: "post",
+      url: "http://localhost:3000/api/tasks/create",
+      headers: { "Access-Control-Allow-Origin": "*" },
+      data: form,
     })
-    .then(({data}) => {
-      setData(data);
-    })
-  }, []);
+      .then(({ data }) => {
+        console.log("Saved form: ", data);
+      })
+      .catch((err) => {
+        alert(err);
+      });
+  };
 
   const [hours, setHours] = React.useState("");
   const [add, setAdd] = React.useState(1);
 
-  const handleChange = (event) => {
-    setHours(event.target.value);
-  };
   const addField = () => {
     setAdd(add + 1);
   };
-	const deleteField = (event, index) => {
-		alert("hi")
-	}
+  const deleteField = (event, index) => {
+    alert("hi");
+  };
 
-const handleInputChange = (event,index) => {
-  console.log(event.target.value);
-  const {value,name} = event.target
-  setForm({...form,[name]:form[name]+value})
-}
-console.log(form);
+  const handleInputChange = (event, index) => {
+    console.log(index);
+    const old = form[index];
+    console.log(old);
+    const updated = { ...old, [event.target.name]: event.target.value };
+    console.log(updated);
+    const clone = [...form];
+    console.log(clone);
+    clone[index] = updated;
+    setForm(clone);
+  };
+
+  console.log(form);
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -97,21 +105,21 @@ console.log(form);
         </Typography>
         <form className={classes.form} noValidate>
           <Grid container spacing={2}>
-            {Array.from(Array(add).keys()).map((value,index) => (
+            {Array.from(Array(add).keys()).map((value, index) => (
               <>
                 {/* {console.log(value)} */}
                 <Grid item xs={12} sm={12}>
                   <TextField
                     autoComplete="tname"
-                    name="taskName"
+                    name="name"
                     variant="outlined"
                     required
                     fullWidth
-                    id="taskName"
+                    id="name"
                     label="TASK NAME"
-                    onChange={handleInputChange}
+                    onChange={(event) => handleInputChange(event, index)}
                     autoFocus
-                    value = {form?.name}
+                    value={form?.name}
                   />
                 </Grid>
                 <Grid item xs={12} sm={12}>
@@ -123,8 +131,8 @@ console.log(form);
                     label="PR LINK"
                     name="prLink"
                     autoComplete="prlink"
-                    value = {form?.pr}
-                    onChange={handleInputChange}
+                    value={form?.pr}
+                    onChange={(event) => handleInputChange(event, index)}
                   />
                 </Grid>
                 <FormControl
@@ -136,10 +144,11 @@ console.log(form);
                     Hours
                   </InputLabel>
                   <Select
+                    name="hours"
                     labelId="demo-simple-select-required-label"
                     id="demo-simple-select-required"
-                    value={hours}
-                    onChange={handleChange}
+                    value={form.hours}
+                    onChange={(event) => handleInputChange(event, index)}
                     className={classes.selectEmpty}
                   >
                     <MenuItem value="">
@@ -157,14 +166,17 @@ console.log(form);
                   </Select>
                   <FormHelperText>Required</FormHelperText>
                 </FormControl>
-               {index === 0 ? null : <Grid item xs={12} sm={4}>
-                  <IconButton 
-									aria-label="delete" 
-									className={classes.margin} 
-									onClick={(event,index)=>deleteField(event,index)}>
-                    <DeleteIcon fontSize="large" />
-                  </IconButton>
-                </Grid>}
+                {index === 0 ? null : (
+                  <Grid item xs={12} sm={4}>
+                    <IconButton
+                      aria-label="delete"
+                      className={classes.margin}
+                      onClick={(event, index) => deleteField(event, index)}
+                    >
+                      <DeleteIcon fontSize="large" />
+                    </IconButton>
+                  </Grid>
+                )}
               </>
             ))}
 
@@ -179,12 +191,11 @@ console.log(form);
             </Button>
             <Grid item xs={12} sm={6}>
               <Button
-                type="submit"
                 fullWidth
                 variant="contained"
                 color="primary"
                 className={classes.submit}
-                
+                onClick={saveForm}
               >
                 Save & Send
               </Button>
