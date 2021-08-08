@@ -1,23 +1,21 @@
 import logo from './logo.svg';
 import './App.css';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import Update_task from './components/Update_task';
+import View_task from './components/View_task';
+import EnhancedTableHead from './components/EnhancedTableHead';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+     <BrowserRouter>
+      <Switch>
+        <Route exact path = "/" render = {()=><Update_task/>}/>
+        <Route exact path = "/temp" render = {()=><EnhancedTableHead/>}/>
+        <Route exact path = "/view" render = {()=><View_task/>}/>
+
+      </Switch>
+     </BrowserRouter>
     </div>
   );
 }
